@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
-import { Chart, ArcElement, Tooltip, Legend } from 'chart.js'
+import { Chart, ArcElement, Tooltip, Legend, DoughnutController } from 'chart.js'
 
-Chart.register(ArcElement, Tooltip, Legend)
+Chart.register(DoughnutController, ArcElement, Tooltip, Legend)
 
 export default function KararlarTab({ data, isDark }) {
   const chartRef = useRef(null)

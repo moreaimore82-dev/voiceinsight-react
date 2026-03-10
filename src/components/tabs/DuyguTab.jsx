@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
-import { Chart, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js'
+import { Chart, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend, RadarController } from 'chart.js'
 
-Chart.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend)
+Chart.register(RadarController, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend)
 
 export default function DuyguTab({ data, isDark }) {
   const chartRef = useRef(null)

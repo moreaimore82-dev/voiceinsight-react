@@ -48,19 +48,32 @@ export async function analyzeAudio(base64Data, mimeType) {
         { inlineData: { mimeType, data: base64Data } }
       ]
     }],
-    generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 8192 }
+    generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 65536 }
   }
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${API_KEY}`
   const result = await fetchWithRetry(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   })
 
-  const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text
+  const candidate = result.candidates?.[0]
+  if (!candidate) throw new Error('Yapay zeka yanıt veremedi.')
+
+  if (candidate.finishReason === 'MAX_TOKENS') {
+    throw new Error('Ses dosyası çok uzun, analiz yanıtı tamamlanamadı. Lütfen daha kısa bir ses dosyası deneyin.')
+  }
+
+  let jsonText = candidate.content?.parts?.[0]?.text
   if (!jsonText) throw new Error('Yapay zeka yanıt veremedi.')
-  return JSON.parse(jsonText)
+  // Markdown kod bloğu varsa temizle
+  jsonText = jsonText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim()
+  try {
+    return JSON.parse(jsonText)
+  } catch {
+    throw new Error('Yapay zeka geçerli bir yanıt üretemedi. Ses dosyası çok uzun olabilir, lütfen daha kısa bir kayıt deneyin.')
+  }
 }
 
 export async function generatePodcastAudio(podcastMetni) {
